@@ -44,6 +44,9 @@ open class ProductEntity : EntityWithUUID() {
   @Column(nullable = false, name = "is_available")
   open var available: Boolean = false
 
+  @Column(name = "stripe_product_id")
+  open var stripeProductId: String? = null
+
   @Column(nullable = false, name = "is_base_product")
   open var baseProduct: Boolean = false
 
@@ -61,7 +64,7 @@ open class ProductEntity : EntityWithUUID() {
   open var partOf: Vertical? = null
 
   @Column(name = "feature_group_id")
-  open lateinit var featureGroupId: UUID
+  open var featureGroupId: UUID? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @OnDelete(action = OnDeleteAction.NO_ACTION)
@@ -91,7 +94,7 @@ fun ProductEntity.toDTO(): Product {
     enterprise = selfHostingEnterprise,
     other = selfHostingOther,
     partOf = partOf?.toDto(),
-    featureGroupId = featureGroupId.toString(),
+    featureGroupId = featureGroupId?.toString(),
     prices = emptyList(),
   )
 }

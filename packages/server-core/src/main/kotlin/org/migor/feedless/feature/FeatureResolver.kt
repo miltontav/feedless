@@ -35,7 +35,7 @@ class FeatureResolver(
 
   @Throttled
   @DgsQuery(field = DgsConstants.QUERY.FeatureGroups)
-  suspend fun featureGroups(
+  suspend fun getFeatureGroups(
     dfe: DataFetchingEnvironment,
     @InputArgument(DgsConstants.QUERY.FEATUREGROUPS_INPUT_ARGUMENT.Inherit) inherit: Boolean,
     @InputArgument(DgsConstants.QUERY.FEATUREGROUPS_INPUT_ARGUMENT.Where) where: FeatureGroupWhereInput,

@@ -196,10 +196,10 @@ dependencies {
   implementation("com.rometools:rome-modules:1.16.0")
   implementation("org.jsoup:jsoup:1.15.3")
   implementation("us.codecraft:xsoup:0.3.2")
-  implementation("com.google.code.gson:gson:2.8.9")
+  implementation("com.google.code.gson:gson:2.10.1")
 
   // https://github.com/shyiko/skedule
-  implementation("com.github.shyiko.skedule:skedule:0.4.0")
+//  implementation("com.github.shyiko.skedule:skedule:0.4.0")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.junit.jupiter:junit-jupiter-api")
@@ -210,10 +210,6 @@ dependencies {
   testImplementation("org.testcontainers:junit-jupiter:${versions["testcontainers"]}")
 // Property-Based-Testing https://mvnrepository.com/artifact/net.jqwik/jqwik
   testImplementation("net.jqwik:jqwik:1.9.0")
-
-
-//  testImplementation("org.powermock:powermock-api-mockito:2.0.9")
-//  testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
 
   implementation("org.telegram:telegrambots-spring-boot-starter:6.1.0")

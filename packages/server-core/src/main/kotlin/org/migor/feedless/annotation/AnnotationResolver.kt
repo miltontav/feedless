@@ -65,7 +65,7 @@ class AnnotationResolver(
   }
 
   @DgsData(parentType = DgsConstants.ANNOTATIONS.TYPE_NAME, field = DgsConstants.ANNOTATIONS.Votes)
-  suspend fun votes(
+  suspend fun getVotes(
     dfe: DgsDataFetchingEnvironment
   ): List<Annotation> = coroutineScope {
     val context = DgsContext.getCustomContext<DgsCustomContext>(dfe)
@@ -78,7 +78,7 @@ class AnnotationResolver(
   }
 
   @DgsData(parentType = DgsConstants.REPOSITORY.TYPE_NAME, field = DgsConstants.REPOSITORY.Annotations)
-  suspend fun annotations(
+  suspend fun getAnnotations(
     dfe: DgsDataFetchingEnvironment
   ): Annotations = coroutineScope {
     val repository: Repository = dfe.getSource()

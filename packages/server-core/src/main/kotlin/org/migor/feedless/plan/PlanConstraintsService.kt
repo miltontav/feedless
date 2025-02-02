@@ -190,7 +190,7 @@ class PlanConstraintsService {
             plan = planDAO.findActiveByUserAndProductIn(userId, listOf(product, Vertical.feedless), LocalDateTime.now())
           }
 
-          featureValueDAO.resolveByFeatureGroupIdAndName(plan!!.product!!.featureGroupId, featureName.name)
+          featureValueDAO.resolveByFeatureGroupIdAndName(plan!!.product!!.featureGroupId!!, featureName.name)
         }
       }
     } catch (e: Exception) {

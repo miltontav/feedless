@@ -52,6 +52,10 @@ export class FeatureComponent {
     switch (feature) {
       case GqlFeatureName.Plugins:
         return 'Plugins';
+      case GqlFeatureName.SupportBool:
+        return 'Support';
+      case GqlFeatureName.FullLicenseBool:
+        return 'Full License';
       case GqlFeatureName.PublicRepository:
         return 'Public Feed Listing';
       case GqlFeatureName.RepositoryCapacityUpperLimitInt:

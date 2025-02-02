@@ -57,8 +57,7 @@
         (ionFocus)="currentNote = null"
         [formControl]="queryFc"
         [showClearButton]="true"
-        style="border-radius: 1rem"
-        placeholder="Search your Notebook"
+        placeholder="Type to Search"
       ></ion-searchbar>
       <ion-list class="results" style="background: transparent">
         @if (!busy) { @if (matches.length === 0) {

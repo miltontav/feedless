@@ -25,8 +25,8 @@ class PartOfSpeechService(
 
   @PostConstruct
   fun postConstruct() {
-    modelEn = loadModelFromFile("opennlp-en-ud-ewt-pos-1.0-1.9.3.bin")
-    modelDe = loadModelFromFile("opennlp-de-ud-gsd-pos-1.0-1.9.3.bin")
+    modelEn = loadModelFromFile("opennlp-en-ud-ewt-pos-1.2-2.5.0.bin")
+    modelDe = loadModelFromFile("opennlp-de-ud-gsd-pos-1.2-2.5.0.bin")
   }
 
   private fun loadModelFromFile(filename: String) = POSModel(ResourceUtils.getFile("classpath:models/$filename"))

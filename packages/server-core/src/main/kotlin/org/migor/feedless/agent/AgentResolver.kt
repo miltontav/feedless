@@ -57,8 +57,8 @@ class AgentResolver(
   }
 
   @Throttled
-  @DgsQuery
-  suspend fun agents(
+  @DgsQuery(field = DgsConstants.QUERY.Agents)
+  suspend fun getAgents(
     dfe: DataFetchingEnvironment,
   ): List<Agent> {
     log.debug("agents")

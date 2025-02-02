@@ -21,6 +21,11 @@ import org.migor.feedless.user.UserEntity
 import java.time.LocalDateTime
 import java.util.*
 
+enum class OrderStatus {
+  ACTIVE,
+  CANCELED
+}
+
 @Entity
 @Table(
   name = "t_order",
@@ -34,14 +39,9 @@ open class OrderEntity : EntityWithUUID() {
   @Min(0)
   open var price: Double = 0.0
 
-  @Column(name = "is_offer", nullable = false)
-  open var isOffer: Boolean = false
-
-  @Column(name = "is_paid", nullable = false)
-  open var isPaid: Boolean = false
-
-  @Column(name = "is_rejected", nullable = false)
-  open var isOfferRejected: Boolean = false
+  @Column(name = "status", nullable = false)
+  @Enumerated(EnumType.STRING)
+  open var status: OrderStatus = OrderStatus.ACTIVE
 
   @Column(name = "target_group_individual", nullable = false)
   open var targetGroupIndividual: Boolean = false
@@ -66,8 +66,23 @@ open class OrderEntity : EntityWithUUID() {
   @Enumerated(EnumType.STRING)
   open var paymentMethod: PaymentMethod? = null
 
-  @Column(name = "paid_at")
-  open var paidAt: LocalDateTime? = null
+  @Column(name = "paid_from")
+  open var paidFrom: LocalDateTime? = null
+
+  @Column(name = "paid_until")
+  open var paidUntil: LocalDateTime? = null
+
+  @Column(name = "stripe_session_id")
+  open var stripeSessionId: String? = null
+
+  @Column(name = "stripe_subscription_id")
+  open var stripeSubscriptionId: String? = null
+
+  @Column(name = "stripe_status")
+  open var stripeStatus: String? = null
+
+  @Column(name = "stripe_last_synced_at")
+  open var stripeLastSyncedAt: LocalDateTime? = null
 
   @Column(name = StandardJpaFields.product_id, nullable = false)
   open var productId: UUID? = null

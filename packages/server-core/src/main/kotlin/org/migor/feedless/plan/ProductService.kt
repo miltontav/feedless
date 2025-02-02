@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.migor.feedless.AppLayer
 import org.migor.feedless.AppProfiles
+import org.migor.feedless.NotFoundException
 import org.migor.feedless.data.jpa.enums.Vertical
 import org.migor.feedless.data.jpa.enums.fromDto
 import org.migor.feedless.generated.types.ProductsWhereInput
@@ -61,7 +62,7 @@ class ProductService(
   @Transactional(readOnly = true)
   suspend fun resolvePriceForProduct(productId: UUID, existingUserId: UUID?): Double {
     val product = withContext(Dispatchers.IO) {
-      productDAO.findById(productId).orElseThrow()
+      productDAO.findByIdWithPrices(productId) ?: throw NotFoundException("Product $productId not found")
     }
     val prices = product.prices.filter { it.validTo?.isAfter(LocalDateTime.now()) ?: true }
       .filter { it.validFrom?.isBefore(LocalDateTime.now()) ?: true }
@@ -78,12 +79,12 @@ class ProductService(
   // todo thats bad transactional code
   suspend fun enableSaasProduct(product: ProductEntity, user: UserEntity, order: OrderEntity? = null) {
 
-    log.error("enableSaasProduct WAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    log.error("enableSaasProduct")
     val prices = withContext(Dispatchers.IO) {
       pricedProductDAO.findAllByProductId(product.id)
     }
     val isFree = { prices.any { it.price == 0.0 } }
-    val isBought = { order?.isPaid == true }
+    val isBought = { true } // todo { order?.isPaid == true }
 
     if (isFree() || isBought()) {
 
@@ -124,5 +125,12 @@ class ProductService(
     return withContext(Dispatchers.IO) {
       pricedProductDAO.findAllByProductId(productId)
     }
+  }
+
+  suspend fun findById(id: UUID): Optional<ProductEntity> {
+    return withContext(Dispatchers.IO) {
+      productDAO.findById(id)
+    }
+
   }
 }

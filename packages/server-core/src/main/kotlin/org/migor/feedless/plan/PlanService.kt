@@ -6,9 +6,11 @@ import org.migor.feedless.AppLayer
 import org.migor.feedless.AppProfiles
 import org.migor.feedless.feature.FeatureGroupDAO
 import org.migor.feedless.feature.FeatureGroupEntity
+import org.migor.feedless.user.userId
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -38,6 +40,20 @@ class PlanService {
   suspend fun findAllByUser(userId: UUID): List<PlanEntity> {
     return withContext(Dispatchers.IO) {
       planDAO.findAllByUser(userId)
+    }
+  }
+
+  @Transactional
+  suspend fun cancelPlan(planId: UUID) {
+    withContext(Dispatchers.IO) {
+      val oldPlan = planDAO.findById(planId).orElseThrow {IllegalArgumentException("plan $planId does not exist")}
+
+      if (oldPlan.userId != coroutineContext.userId()) {
+        throw AccessDeniedException("must be owner")
+      }
+
+      oldPlan.terminatedAt = LocalDateTime.now()
+      planDAO.save(oldPlan)
     }
   }
 }

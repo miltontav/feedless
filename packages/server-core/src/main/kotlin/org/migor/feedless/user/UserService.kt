@@ -16,6 +16,7 @@ import org.migor.feedless.data.jpa.enums.Vertical
 import org.migor.feedless.feature.FeatureName
 import org.migor.feedless.feature.FeatureService
 import org.migor.feedless.generated.types.UpdateCurrentUserInput
+import org.migor.feedless.mail.MailService
 import org.migor.feedless.plan.ProductDAO
 import org.migor.feedless.plan.ProductService
 import org.migor.feedless.repository.MaxAgeDaysDateField
@@ -50,6 +51,7 @@ class UserService(
   private var productService: ProductService,
   private var githubConnectionService: GithubConnectionDAO,
   private var connectedAppDAO: ConnectedAppDAO,
+  private var mailService: MailService,
   @Lazy
   private var telegramBotService: Optional<TelegramBotService>
 ) {
@@ -154,16 +156,14 @@ class UserService(
       user.email = it.set
       user.validatedEmailAt = null
       user.hasValidatedEmail = false
-      // todo ask to validate email
+
+      mailService.askVerifyEmail(user, it.set)
+
       changed = true
     }
 
-    data.firstName?.let {
-      user.firstName = it.set
-      changed = true
-    }
-    data.lastName?.let {
-      user.lastName = it.set
+    data.name?.let {
+      user.name = it.set
       changed = true
     }
     data.country?.let {

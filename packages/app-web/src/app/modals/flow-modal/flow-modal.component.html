@@ -12,15 +12,12 @@
   <div style="flex: 1; display: flex">
     <div style="flex: 1">
       <ion-reorder-group [disabled]="false">
-        <ion-item>
-          <ion-label> Item 1 </ion-label>
-          <ion-reorder slot="start"></ion-reorder>
-        </ion-item>
-
-        <ion-item [button]="true">
-          <ion-label> Item 2 </ion-label>
-          <ion-reorder slot="start"></ion-reorder>
-        </ion-item>
+        @for (plugin of plugins; track plugin.pluginId) {
+          <ion-item>
+            <ion-label>{{ plugin.pluginId }}</ion-label>
+            <ion-reorder slot="start"></ion-reorder>
+          </ion-item>
+        }
       </ion-reorder-group>
 
       <ion-button color="primary">

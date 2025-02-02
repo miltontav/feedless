@@ -59,7 +59,7 @@ class DocumentResolver(
 
   @Throttled
   @DgsQuery(field = DgsConstants.QUERY.Record)
-  suspend fun record(
+  suspend fun getRecord(
     dfe: DataFetchingEnvironment,
     @InputArgument(DgsConstants.QUERY.RECORD_INPUT_ARGUMENT.Data) data: RecordWhereInput,
   ): Record = withContext(injectCurrentUser(currentCoroutineContext(), dfe)) {
@@ -75,7 +75,7 @@ class DocumentResolver(
 
   @Throttled
   @DgsQuery(field = DgsConstants.QUERY.Records)
-  suspend fun records(
+  suspend fun getRecords(
     dfe: DataFetchingEnvironment,
     @InputArgument(DgsConstants.QUERY.RECORDS_INPUT_ARGUMENT.Data) data: RecordsInput,
   ): List<Record> = withContext(injectCurrentUser(currentCoroutineContext(), dfe)) {
@@ -135,7 +135,7 @@ class DocumentResolver(
   }
 
   @DgsQuery(field = DgsConstants.QUERY.RecordsFrequency)
-  suspend fun recordsFrequency(
+  suspend fun getRecordsFrequency(
     @InputArgument(DgsConstants.QUERY.RECORDSFREQUENCY_INPUT_ARGUMENT.Where) where: RecordsWhereInput,
     @InputArgument(DgsConstants.QUERY.RECORDSFREQUENCY_INPUT_ARGUMENT.GroupBy) groupBy: RecordDateField,
   ): List<RecordFrequency> = coroutineScope {
@@ -144,7 +144,7 @@ class DocumentResolver(
 
 
   @DgsData(parentType = DgsConstants.REPOSITORY.TYPE_NAME, field = DgsConstants.REPOSITORY.Frequency)
-  suspend fun frequency(
+  suspend fun getFrequency(
     dfe: DgsDataFetchingEnvironment,
   ): List<RecordFrequency> = coroutineScope {
     val repository: Repository = dfe.getSource()!!

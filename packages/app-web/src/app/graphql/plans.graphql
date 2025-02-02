@@ -3,3 +3,7 @@ query plans($cursor: Cursor!) {
     ...PlanFragment
   }
 }
+
+mutation cancelPlan($planId: ID!) {
+  cancelPlan(plan: $planId)
+}

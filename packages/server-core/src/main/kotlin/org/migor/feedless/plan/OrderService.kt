@@ -13,7 +13,6 @@ import org.migor.feedless.generated.types.OrderWhereUniqueInput
 import org.migor.feedless.generated.types.OrdersInput
 import org.migor.feedless.generated.types.ProductTargetGroup
 import org.migor.feedless.generated.types.UserCreateInput
-import org.migor.feedless.license.LicenseService
 import org.migor.feedless.session.SessionService
 import org.migor.feedless.user.UserDAO
 import org.migor.feedless.user.UserEntity
@@ -35,24 +34,14 @@ import org.migor.feedless.generated.types.PaymentMethod as PaymentMethodDto
 @Service
 @Transactional(propagation = Propagation.NEVER)
 @Profile("${AppProfiles.plan} & ${AppLayer.service}")
-class OrderService {
+class OrderService(
+  private val orderDAO: OrderDAO,
+  private val userDAO: UserDAO,
+  private val sessionService: SessionService,
+  private val productService: ProductService
+) {
 
   private val log = LoggerFactory.getLogger(OrderService::class.simpleName)
-
-  @Autowired
-  private lateinit var orderDAO: OrderDAO
-
-  @Autowired
-  private lateinit var sessionService: SessionService
-
-  @Autowired
-  private lateinit var licenseService: LicenseService
-
-  @Autowired
-  private lateinit var productService: ProductService
-
-  @Autowired
-  private lateinit var userDAO: UserDAO
 
   @Transactional(readOnly = true)
   suspend fun findAll(data: OrdersInput): List<OrderEntity> {
@@ -65,7 +54,7 @@ class OrderService {
 //      } ?:
         orderDAO.findAll(pageable).toList()
       } else {
-        orderDAO.findAllByUserId(currentUser.id, pageable).toList()
+        orderDAO.findAllByUserId(currentUser.id, pageable)
       }
     }
   }
@@ -85,7 +74,6 @@ class OrderService {
     val corrId = coroutineContext.corrId()
     log.info("[$corrId] create $create]")
     val order = OrderEntity()
-    order.isOffer = BooleanUtils.isTrue(create.isOffer)
     val productId = UUID.fromString(create.productId)
     order.productId = productId
     order.invoiceRecipientEmail = create.invoiceRecipientEmail.trim()
@@ -106,6 +94,7 @@ class OrderService {
     } ?: create.user.create?.let {
       order.userId = createUser(create.user.create).id
     } ?: throw IllegalArgumentException("Neither connect or create is present")
+
     return withContext(Dispatchers.IO) {
       orderDAO.save(order)
     }
@@ -121,8 +110,7 @@ class OrderService {
         }
         val user = UserEntity()
         user.email = create.email
-        user.firstName = create.firstName
-        user.lastName = create.lastName
+        user.name = create.name
         user.hasAcceptedTerms = create.hasAcceptedTerms
         user.acceptedTermsAt = LocalDateTime.now()
 
@@ -141,42 +129,43 @@ class OrderService {
     return withContext(Dispatchers.IO) {
       val order = orderDAO.findById(UUID.fromString(where.id)).orElseThrow()
 
-      update.isRejected?.let {
-        order.isOfferRejected = it.set
-      }
       update.price?.let {
         order.price = it.set
       }
       update.isRejected?.let {
-        order.isOfferRejected = it.set
+        if (it.set) {
+          order.status = OrderStatus.CANCELED
+        } else {
+          order.status = OrderStatus.ACTIVE
+        }
       }
 
       orderDAO.save(order)
     }
   }
 
-  @Transactional
-  suspend fun handlePaymentCallback(orderId: String): OrderEntity {
-    return withContext(Dispatchers.IO) {
-      val order = orderDAO.findById(UUID.fromString(orderId)).orElseThrow()
-
-      order.isPaid = true
-      order.paidAt = LocalDateTime.now()
-      orderDAO.save(order)
-
-      val product = order.product!!
-      if (product.saas) {
-        productService.enableSaasProduct(product, order.user!!, order)
-      } else {
-        order.licenses = mutableListOf(licenseService.createLicenseForProduct(product, order))
-        orderDAO.save(order)
-      }
-
-      // todo send email
-
-      order
-    }
-  }
+//  @Transactional
+//  suspend fun handlePaymentCallback(orderId: String): OrderEntity {
+//    return withContext(Dispatchers.IO) {
+//      val order = orderDAO.findById(UUID.fromString(orderId)).orElseThrow()
+//
+//      order.isPaid = true
+//      order.paidAt = LocalDateTime.now()
+//      orderDAO.save(order)
+//
+//      val product = order.product!!
+//      if (product.saas) {
+//        productService.enableSaasProduct(product, order.user!!, order)
+//      } else {
+//        order.licenses = mutableListOf(licenseService.createLicenseForProduct(product, order))
+//        orderDAO.save(order)
+//      }
+//
+////      mailService.
+//
+//      order
+//    }
+//  }
 }
 
 private fun PaymentMethodDto.fromDTO(): PaymentMethod {
@@ -196,17 +185,16 @@ fun OrderEntity.toDTO(): Order {
     userId = userId.toString(),
     productId = productId.toString(),
 
-    isOffer = isOffer,
+//    isOffer = isOffer,
     paymentDueTo = dueTo?.toMillis(),
-    isPaid = isPaid,
-    isOfferRejected = isOfferRejected,
+//    isPaid = isPaid,
+//    isOfferRejected = isOfferRejected,
 
-    paidAt = paidAt?.toMillis(),
+//    paidAt = paidAt?.toMillis(),
     paymentMethod = paymentMethod?.toDTO(),
     invoiceRecipientName = invoiceRecipientName,
     invoiceRecipientEmail = invoiceRecipientEmail,
     price = price,
-    product = product!!.toDTO(),
-
-    )
+    product = null,
+  )
 }

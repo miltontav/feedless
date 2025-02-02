@@ -6,8 +6,4 @@ export const PRICING_ROUTES: Routes = [
     path: '',
     component: PricingPage,
   },
-  {
-    path: ':productId',
-    component: PricingPage,
-  },
 ];

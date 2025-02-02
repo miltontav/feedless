@@ -4,6 +4,9 @@
 podman pull docker.io/postgis/postgis:15-3.4-alpine
 
 
+## OpenNLP models
+https://opennlp.apache.org/models.html
+
 ## Database
 In root directory
 ```

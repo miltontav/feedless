@@ -9,7 +9,7 @@ class CacheKeyGenerator : KeyGenerator {
     val ex = IllegalArgumentException()
     val data = params.filterIsInstance<ServerSettingsContextInput>().firstOrNull()
     return when (method.name) {
-      "serverSettings" -> if (data == null) {
+      "getServerSettings" -> if (data == null) {
         throw ex
       } else {
         method.name + "/" + data.host

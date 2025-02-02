@@ -20,11 +20,12 @@
         <ion-label>Plans</ion-label>
       </ion-item>
       <ion-list slot="content">
+        <ion-item [button]="true" routerLink="/orders"> Orders </ion-item>
         <ion-item [button]="true" routerLink="/billings"> Billings </ion-item>
         <ion-item [button]="true" routerLink="/subscriptions">
           Subscriptions
         </ion-item>
-        <ion-item [button]="true" routerLink="/pricing/feedless">
+        <ion-item [button]="true" routerLink="/pricing">
           Pricing
         </ion-item>
       </ion-list>
@@ -34,9 +35,11 @@
         <ion-label>Feeds</ion-label>
       </ion-item>
       <ion-list slot="content">
-        <ion-item [button]="true"> Sources </ion-item>
-        <ion-item [button]="true"> Sinks </ion-item>
-        <ion-item [button]="true"> Repositories </ion-item>
+        <ion-item [button]="true" routerLink="/repositories">
+          Repositories
+        </ion-item>
+        <ion-item [button]="true" routerLink="/sources"> Sources </ion-item>
+        <ion-item [button]="true" routerLink="/sinks"> Sinks </ion-item>
       </ion-list>
     </ion-accordion>
     <ion-item [button]="true">

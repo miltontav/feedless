@@ -19,29 +19,16 @@
       @if (serverConfig.isSaas()) {
       <ion-row>
         <ion-col size="3">
-          <ion-label class="ion-padding">First Name</ion-label>
+          <ion-label class="ion-padding">Name</ion-label>
         </ion-col>
         <ion-col size="9">
           <ion-input
-            [formControl]="formFg.controls.firstName"
-            aria-label="First Name"
+            [formControl]="formFg.controls.name"
+            aria-label="Name"
             fill="outline"
-            placeholder="Your first name"
+            placeholder="Your name"
           ></ion-input>
           <!--              <ion-note color="danger">Enter your name</ion-note>-->
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="3">
-          <ion-label class="ion-padding">Last Name</ion-label>
-        </ion-col>
-        <ion-col size="9">
-          <ion-input
-            [formControl]="formFg.controls.lastName"
-            aria-label="Last Name"
-            fill="outline"
-            placeholder="Your last name"
-          ></ion-input>
         </ion-col>
       </ion-row>
       }
@@ -67,20 +54,6 @@
           } @if (formFg.value.emailVerified) {
           <ion-label color="success">Email verified </ion-label>
           }
-        </ion-col>
-      </ion-row>
-      } @if (serverConfig.isSaas()) {
-      <ion-row>
-        <ion-col size="3">
-          <ion-label class="ion-padding">Country</ion-label>
-        </ion-col>
-        <ion-col size="9">
-          <ion-input
-            [formControl]="formFg.controls.country"
-            aria-label="Country"
-            fill="outline"
-            placeholder="Your country of residence"
-          ></ion-input>
         </ion-col>
       </ion-row>
       }

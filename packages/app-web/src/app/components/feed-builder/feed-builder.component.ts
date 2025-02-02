@@ -451,46 +451,54 @@ export class FeedBuilderComponent implements OnInit, OnDestroy {
       dateIsEvent: false,
     };
 
-    const params = new URL(url).search
-      .substring(1)
-      .split('&')
-      .reduce(
-        (params, param) => {
-          const parts = param.split('=', 2);
-          if (parts && parts[0]) {
-            params[parts[0]] = decodeURIComponent(parts[1]);
-          }
-          return params;
-        },
-        {} as { [s: string]: string },
-      );
+    try {
+      const params = new URL(url).search
+        .substring(1)
+        .split('&')
+        .reduce(
+          (params, param) => {
+            const parts = param.split('=', 2);
+            if (parts && parts[0]) {
+              params[parts[0]] = decodeURIComponent(parts[1]);
+            }
+            return params;
+          },
+          {} as { [s: string]: string },
+        );
 
-    const keys = Object.keys(params);
+      const keys = Object.keys(params);
 
-    const canParseUrl = <PM extends Record<string, Parser<any>>, C extends {}>(
-      route: RouteNode<string, PM, C>,
-    ): boolean => {
-      return (
-        intersection(Object.keys(route.parserMap), keys).length === keys.length
-      );
-    };
+      const canParseUrl = <
+        PM extends Record<string, Parser<any>>,
+        C extends {},
+      >(
+        route: RouteNode<string, PM, C>,
+      ): boolean => {
+        return (
+          intersection(Object.keys(route.parserMap), keys).length ===
+          keys.length
+        );
+      };
 
-    if (canParseUrl(standaloneV2WebToFeedRoute)) {
-      return assignIn(
-        defaultParams,
-        standaloneV2WebToFeedRoute.parseParams(params as any),
-      );
-    } else {
-      if (canParseUrl(standaloneV1WebToFeedRoute)) {
-        const parsed = standaloneV1WebToFeedRoute.parseParams(params as any);
-        return assignIn(defaultParams, {
-          url: parsed.url,
-          context: parsed.pContext,
-          link: parsed.pLink,
-        });
+      if (canParseUrl(standaloneV2WebToFeedRoute)) {
+        return assignIn(
+          defaultParams,
+          standaloneV2WebToFeedRoute.parseParams(params as any),
+        );
       } else {
-        throw new Error('not a standalone url');
+        if (canParseUrl(standaloneV1WebToFeedRoute)) {
+          const parsed = standaloneV1WebToFeedRoute.parseParams(params as any);
+          return assignIn(defaultParams, {
+            url: parsed.url,
+            context: parsed.pContext,
+            link: parsed.pLink,
+          });
+        } else {
+          throw new Error('not a standalone url');
+        }
       }
+    } catch (e) {
+      throw new Error('not a standalone url');
     }
   }
 

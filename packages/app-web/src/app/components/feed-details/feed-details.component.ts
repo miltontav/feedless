@@ -473,21 +473,6 @@ export class FeedDetailsComponent implements OnInit, OnDestroy {
     await toast.present();
   }
 
-  async showCode() {
-    await this.modalService.openCodeEditorModal({
-      title: 'JSON Editor',
-      text: JSON.stringify(
-        await this.repositoryService.getRepositoryInputWithSourcesAndFlow(
-          this.repository(),
-        ),
-        null,
-        2,
-      ),
-      contentType: 'json',
-    });
-    // todo use editor data
-  }
-
   async starRepository() {
     await this.authGuard.assertLoggedIn();
     await this.annotationService.createAnnotation({

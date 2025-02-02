@@ -121,6 +121,7 @@ class SecurityConfig {
       "/f/**",
       "/feed:**",
       "/payment/**",
+      "/checkout/**",
       "/stream/bucket/**",
       "/bucket/**",
       "/bucket:**",

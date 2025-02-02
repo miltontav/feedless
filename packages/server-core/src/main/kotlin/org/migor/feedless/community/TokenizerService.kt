@@ -23,8 +23,8 @@ class TokenizerService {
 
   @PostConstruct
   fun postConstruct() {
-    modelEn = loadModelFromFile("opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin")
-    modelDe = loadModelFromFile("opennlp-de-ud-gsd-tokens-1.0-1.9.3.bin")
+    modelEn = loadModelFromFile("opennlp-en-ud-ewt-tokens-1.2-2.5.0.bin")
+    modelDe = loadModelFromFile("opennlp-de-ud-gsd-tokens-1.2-2.5.0.bin")
   }
 
   private fun loadModelFromFile(filename: String) = TokenizerModel(ResourceUtils.getFile("classpath:models/$filename"))

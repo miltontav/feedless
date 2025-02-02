@@ -82,7 +82,7 @@ class RepositoryResolver(
 
   @Throttled
   @DgsQuery(field = DgsConstants.QUERY.CountRepositories)
-  suspend fun countRepositories(
+  suspend fun getRepositoriesCount(
     dfe: DataFetchingEnvironment,
     @InputArgument(DgsConstants.QUERY.COUNTREPOSITORIES_INPUT_ARGUMENT.Data) data: CountRepositoriesInput,
   ): Int = withContext(injectCurrentUser(currentCoroutineContext(), dfe)) {
@@ -92,7 +92,7 @@ class RepositoryResolver(
 
   @Throttled
   @DgsQuery(field = DgsConstants.QUERY.Repository)
-  suspend fun repository(
+  suspend fun getRepository(
     dfe: DataFetchingEnvironment,
     @InputArgument(DgsConstants.QUERY.REPOSITORY_INPUT_ARGUMENT.Data) data: RepositoryWhereInput,
   ): Repository = withContext(injectCurrentUser(currentCoroutineContext(), dfe)) {

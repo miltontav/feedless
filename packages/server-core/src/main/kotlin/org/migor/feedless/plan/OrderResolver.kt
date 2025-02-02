@@ -45,10 +45,16 @@ class OrderResolver {
   lateinit var orderService: OrderService
 
   @Autowired
+  lateinit var planService: PlanService
+
+  @Autowired
   lateinit var licenseService: LicenseService
 
+  @Autowired
+  lateinit var productService: ProductService
+
   @DgsQuery(field = DgsConstants.QUERY.Orders)
-  suspend fun orders(
+  suspend fun getOrders(
     dfe: DataFetchingEnvironment,
     @InputArgument(DgsConstants.QUERY.ORDERS_INPUT_ARGUMENT.Data) data: OrdersInput
   ): List<Order> =
@@ -66,16 +72,29 @@ class OrderResolver {
       orderService.upsert(data.where, data.create, data.update).toDTO()
     }
 
+  @DgsMutation(field = DgsConstants.MUTATION.CancelPlan)
+  suspend fun cancelPlan(
+    dfe: DataFetchingEnvironment,
+    @InputArgument(DgsConstants.MUTATION.CANCELPLAN_INPUT_ARGUMENT.Plan) plan: String,
+  ): Boolean =
+    withContext(injectCurrentUser(currentCoroutineContext(), dfe)) {
+      log.debug("cancelPlan $plan")
+      planService.cancelPlan(UUID.fromString(plan))
+      true
+    }
+
   @DgsData(parentType = DgsConstants.ORDER.TYPE_NAME, field = DgsConstants.ORDER.Product)
-  suspend fun product(dfe: DgsDataFetchingEnvironment): Product = coroutineScope {
-    val order: Order = dfe.getRoot()
-    val dataLoader: DataLoader<String, Product> = dfe.getDataLoader("product")
-    dataLoader.load(order.productId).await()
+  suspend fun getProduct(dfe: DgsDataFetchingEnvironment): Product = coroutineScope {
+    val order: Order = dfe.getSource()
+    productService.findById(UUID.fromString(order.productId)).orElseThrow().toDTO()
+
+//    val dataLoader: DataLoader<String, ProductEntity> = dfe.getDataLoader("products")
+//    dataLoader.load(order.productId).get().toDTO()
   }
 
   @DgsData(parentType = DgsConstants.ORDER.TYPE_NAME, field = DgsConstants.ORDER.Licenses)
-  suspend fun licenses(dfe: DgsDataFetchingEnvironment): List<License> = coroutineScope {
-    val order: Order = dfe.getRoot()
+  suspend fun getLicenses(dfe: DgsDataFetchingEnvironment): List<License> = coroutineScope {
+    val order: Order = dfe.getSource()
     licenseService.findAllByOrderId(UUID.fromString(order.id)).map { it.toDTO() }
   }
 

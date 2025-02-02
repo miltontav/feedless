@@ -26,17 +26,17 @@ class MailController(
 
   private val log = LoggerFactory.getLogger(MailController::class.simpleName)
 
-  @GetMapping(
-    "${mailForwardingAllow}/{mailForwardId}",
-  )
-  suspend fun mailForwardingAllow(
-    request: HttpServletRequest,
-    @PathVariable("mailForwardId") mailForwardId: String,
-  ): ResponseEntity<String> = coroutineScope {
-    log.info("GET authorizeMailForward id=$mailForwardId")
-    reportService.updateReportById(UUID.fromString(mailForwardId), true)
-
-    ResponseEntity.ok()
-      .body(templateService.renderTemplate(ChangeTrackerAuthorizedTemplate()))
-  }
+//  @GetMapping(
+//    "${mailForwardingAllow}/{mailForwardId}",
+//  )
+//  suspend fun mailForwardingAllow(
+//    request: HttpServletRequest,
+//    @PathVariable("mailForwardId") mailForwardId: String,
+//  ): ResponseEntity<String> = coroutineScope {
+//    log.info("GET authorizeMailForward id=$mailForwardId")
+//    reportService.updateReportById(UUID.fromString(mailForwardId), true)
+//
+//    ResponseEntity.ok()
+//      .body(templateService.renderTemplate(ChangeTrackerAuthorizedTemplate()))
+//  }
 }

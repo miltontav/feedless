@@ -74,7 +74,7 @@ export class LicensePage implements OnInit, OnDestroy {
   fromNow = relativeTimeOrElse;
   buyRssProxyUrl: string = `${
     environment.officialFeedlessUrl
-  }/pricing/rss-proxy?callbackUrl=${encodeURIComponent(location.href)}`;
+  }/pricing?callbackUrl=${encodeURIComponent(location.href)}`;
   licenseFc = new FormControl<string>('', [Validators.minLength(10)]);
   protected readonly dateFormat = dateFormat;
   private subscriptions: Subscription[] = [];

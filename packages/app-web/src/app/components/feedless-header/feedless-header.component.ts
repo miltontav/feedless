@@ -31,8 +31,14 @@ import { RepositoriesButtonComponent } from '../repositories-button/repositories
 import { DarkModeButtonComponent } from '../dark-mode-button/dark-mode-button.component';
 import { LoginButtonComponent } from '../login-button/login-button.component';
 import { addIcons } from 'ionicons';
-import { logoGithub, logoSlack, notificationsOutline } from 'ionicons/icons';
+import {
+  logoGithub,
+  logoSlack,
+  notificationsOutline,
+  rocketOutline,
+} from 'ionicons/icons';
 import { RemoveIfProdDirective } from '../../directives/remove-if-prod/remove-if-prod.directive';
+import { Plan, PlanService } from '../../services/plan.service';
 
 @Component({
   selector: 'app-feedless-header',
@@ -50,8 +56,8 @@ import { RemoveIfProdDirective } from '../../directives/remove-if-prod/remove-if
     DarkModeButtonComponent,
     LoginButtonComponent,
     IonIcon,
-    RouterLinkActive,
     RemoveIfProdDirective,
+    RouterLinkActive,
   ],
   standalone: true,
 })
@@ -75,6 +81,7 @@ export class FeedlessHeaderComponent implements OnInit, OnDestroy {
       logoSlack,
       logoGithub,
       notificationsOutline,
+      rocketOutline,
     });
   }
 

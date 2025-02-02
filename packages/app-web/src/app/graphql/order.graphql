@@ -4,11 +4,9 @@ fragment OrderFragment on Order {
     ...ProductFragment
   }
   createdAt
-  isOffer
-  isPaid
   paymentMethod
   invoiceRecipientEmail
-  invoiceRecipientName
+  #  invoiceRecipientName
 }
 
 query orders($data: OrdersInput!) {

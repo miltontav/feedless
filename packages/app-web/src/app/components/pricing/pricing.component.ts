@@ -7,37 +7,46 @@ import {
   OnInit,
   output,
 } from '@angular/core';
-import { filter } from 'lodash-es';
+import { filter, isNull } from 'lodash-es';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
-import { FeatureGroup, Product } from '../../graphql/types';
+import { Feature, FeatureGroup, Product } from '../../graphql/types';
 import {
   GqlFeatureName,
   GqlPricedProduct,
   GqlRecurringPaymentInterval,
   GqlVertical,
 } from '../../../generated/graphql';
-import {
-  PlanColumnComponent,
-  StringFeatureGroup,
-} from '../plan-column/plan-column.component';
 import { FeatureService } from '../../services/feature.service';
-
 import {
+  AlertController,
   IonButton,
   IonCol,
   IonLabel,
-  IonNote,
   IonRow,
   IonSegment,
   IonSegmentButton,
+  IonText,
+  ToastController,
 } from '@ionic/angular/standalone';
 import { Plan, PlanService } from '../../services/plan.service';
 import { RemoveIfProdDirective } from '../../directives/remove-if-prod/remove-if-prod.directive';
+import { FeatureComponent } from '../feature/feature.component';
+import { ActivatedRoute } from '@angular/router';
+
+export type StringFeatureGroup = {
+  groupLabel: string;
+  features: Feature[];
+};
 
 type TargetGroup = 'organization' | 'individual' | 'other';
-type ServiceFlavor = 'selfHosting' | 'saas';
+type ProductFlavor = 'selfHosting' | 'saas';
 type PaymentInterval = GqlRecurringPaymentInterval;
+
+type Price = Pick<
+  GqlPricedProduct,
+  'id' | 'recurringInterval' | 'description' | 'inStock' | 'price'
+>;
 
 type ProductWithFeatureGroups = Product & {
   stringifiedFeatureGroups: StringFeatureGroup[];
@@ -55,12 +64,12 @@ type ProductWithFeatureGroups = Product & {
     ReactiveFormsModule,
     IonSegmentButton,
     IonLabel,
-    PlanColumnComponent,
-    IonRow,
-    IonCol,
-    IonNote,
     IonButton,
     RemoveIfProdDirective,
+    IonText,
+    FeatureComponent,
+    IonRow,
+    IonCol,
   ],
   standalone: true,
 })
@@ -69,14 +78,17 @@ export class PricingComponent implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly changeRef = inject(ChangeDetectorRef);
   private readonly planService = inject(PlanService);
+  private readonly toastCtrl = inject(ToastController);
+  private readonly alertCtrl = inject(AlertController);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   targetGroupFc = new FormControl<TargetGroup>('individual');
   paymentIntervalFc = new FormControl<PaymentInterval>(
     GqlRecurringPaymentInterval.Yearly,
   );
-  serviceFlavorFc = new FormControl<ServiceFlavor>('saas');
-  serviceFlavorSelf: ServiceFlavor = 'selfHosting';
-  serviceFlavorCloud: ServiceFlavor = 'saas';
+  productFlavorFc = new FormControl<ProductFlavor>('saas');
+  productFlavorSelf: ProductFlavor = 'selfHosting';
+  productFlavorCloud: ProductFlavor = 'saas';
   targetGroupOrganization: TargetGroup = 'organization';
   targetGroupIndividual: TargetGroup = 'individual';
   targetGroupOther: TargetGroup = 'other';
@@ -86,7 +98,7 @@ export class PricingComponent implements OnInit {
 
   readonly vertical = input.required<GqlVertical>();
 
-  readonly serviceFlavor = input<ServiceFlavor>();
+  readonly serviceFlavor = input<ProductFlavor>();
 
   readonly hideServiceFlavor = input<boolean>();
 
@@ -96,7 +108,16 @@ export class PricingComponent implements OnInit {
   async ngOnInit() {
     const serviceFlavor = this.serviceFlavor();
     if (serviceFlavor) {
-      this.serviceFlavorFc.setValue(serviceFlavor);
+      this.productFlavorFc.setValue(serviceFlavor);
+    } else {
+      this.productFlavorFc.setValue(
+        [
+          this.activatedRoute.snapshot.queryParams.flavor,
+          this.productFlavorSelf,
+        ].filter((flavor) =>
+          [this.productFlavorSelf, this.productFlavorCloud].includes(flavor),
+        )[0],
+      );
     }
     const products = await this.productService.listProducts({
       vertical: this.vertical(),
@@ -106,6 +127,7 @@ export class PricingComponent implements OnInit {
 
     this.products = await Promise.all(
       products.map<Promise<ProductWithFeatureGroups>>(async (p) => {
+        console.log('p.featureGroupId', p.featureGroupId);
         const featureGroups = p.featureGroupId
           ? await this.featureService.findAll(
               { id: { eq: p.featureGroupId } },
@@ -133,7 +155,7 @@ export class PricingComponent implements OnInit {
   }
 
   private filterParams() {
-    if (this.serviceFlavorFc.value === 'saas') {
+    if (this.productFlavorFc.value === 'saas') {
       return {
         isCloud: true,
       };
@@ -172,7 +194,8 @@ export class PricingComponent implements OnInit {
     };
   }
 
-  checkout(product: Product) {
+  buySubscription(product: Product) {
+    // this.products.find(p => this.hasSubscribed(p));
     this.selectionChange.emit(product);
   }
 
@@ -197,13 +220,54 @@ export class PricingComponent implements OnInit {
   }
 
   hasSubscribed(product: ProductWithFeatureGroups): boolean {
-    return (
-      product.isCloud &&
-      this.subscribedPlans.some(
-        (subscribedPlan) => subscribedPlan.productId === product.id,
-      )
+    return this.subscribedPlans.some(
+      (subscribedPlan) =>
+        subscribedPlan.productId === product.id &&
+        isNull(subscribedPlan.terminatedAt),
     );
   }
 
-  cancelSubscription(product: ProductWithFeatureGroups) {}
+  async cancelSubscription(product: ProductWithFeatureGroups) {
+    const plan = this.subscribedPlans.find(
+      (subscribedPlan) =>
+        subscribedPlan.productId === product.id &&
+        isNull(subscribedPlan.terminatedAt),
+    );
+
+    if (plan) {
+      const alert = await this.alertCtrl.create({
+        header: 'Cancel Subscription?',
+        message: `You will be downgraded to a free plan, if available.`,
+        // cssClass: 'fatal-alert',
+        buttons: [
+          {
+            text: 'No, keep it unchanged',
+            role: 'cancel',
+          },
+          {
+            text: 'Yes, Confirm',
+            role: 'confirm',
+            cssClass: 'confirm-button',
+            handler: async () => {
+              await this.planService.cancelPlanSubscription(plan.id);
+
+              const toast = await this.toastCtrl.create({
+                message: 'Plan cancelled',
+                duration: 3000,
+                color: 'success',
+              });
+
+              await toast.present();
+            },
+          },
+        ],
+      });
+      await alert.present();
+    }
+  }
+
+  getDiscount(product: ProductWithFeatureGroups, price: Price) {
+    const basePrice = this.filteredPrices(product.prices)[0];
+    return (100*(1 - price.price / basePrice.price)).toFixed(0);
+  }
 }

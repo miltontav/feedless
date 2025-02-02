@@ -45,37 +45,4 @@ export class WorkflowBuilderPage implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.forEach((s) => s.unsubscribe());
   }
-
-  // async handleFeed(feed: FeedWithRequest) {
-  //   const { title, description } = this.getFeedData(
-  //     feed.feed,
-  //     getFirstFetchUrlLiteral(feed.scrapeRequest.page.actions),
-  //   );
-  //   const componentProps: GenerateFeedModalComponentProps = {
-  //     repository: {
-  //       title,
-  //       description,
-  //       plugins: [],
-  //       sources: [
-  //         getScrapeRequest(feed.feed, feed.scrapeRequest as GqlScrapeRequest),
-  //       ],
-  //     } as any,
-  //   };
-  //   await this.modalService.openFeedMetaEditor(componentProps);
-  // }
-  //
-  // private getFeedData(feed: NativeOrGenericFeed, urlString: string) {
-  //   if (feed.nativeFeed) {
-  //     return {
-  //       title: feed.nativeFeed.title,
-  //       description: `Source: ${feed.nativeFeed.feedUrl}`,
-  //     };
-  //   } else {
-  //     const url = new URL(urlString);
-  //     return {
-  //       title: `Feed from ${url.host}${url.pathname}`,
-  //       description: `Source: ${url}`,
-  //     };
-  //   }
-  // }
 }

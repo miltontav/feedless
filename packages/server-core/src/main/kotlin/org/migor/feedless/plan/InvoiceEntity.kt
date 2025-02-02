@@ -12,7 +12,6 @@ import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import org.migor.feedless.data.jpa.EntityWithUUID
 import org.migor.feedless.data.jpa.StandardJpaFields
-import java.time.LocalDateTime
 import java.util.*
 
 @Entity
@@ -21,18 +20,20 @@ import java.util.*
 )
 open class InvoiceEntity : EntityWithUUID() {
 
-  @Column(name = "price", nullable = false)
-  @Min(0)
-  open var price: Double = 0.0
+  @Column(name = "amount_paid", nullable = false)
+  open var amountPaid: Long? = null
 
-  @Column(name = "is_canceled", nullable = false)
-  open var isCanceled: Boolean = false
+  @Column(name = "amount_remaining", nullable = false)
+  open var amountRemaining: Long? = null
 
-  @Column(name = "due_to")
-  open var dueTo: LocalDateTime? = null
+  @Column(name = "pdf_url", nullable = false)
+  open lateinit var pdfUrl: String
 
-  @Column(name = "paid_at")
-  open var paidAt: LocalDateTime? = null
+  @Column(name = "invoice_id", nullable = false)
+  open lateinit var invoiceId: String
+
+  @Column(name = "customer_email")
+  open var customerEmail: String? = null
 
   @Column(name = StandardJpaFields.order_id, nullable = false)
   open var orderId: UUID? = null

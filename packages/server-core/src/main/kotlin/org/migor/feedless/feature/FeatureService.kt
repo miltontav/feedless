@@ -55,7 +55,7 @@ class FeatureService(
     return withContext(Dispatchers.IO) {
       val plan = planDAO.findActiveByUserAndProductIn(userId, listOf(product), LocalDateTime.now())
       plan?.let {
-        val productFeatures = featureValueDAO.resolveAllByFeatureGroupId(plan.product!!.featureGroupId)
+        val productFeatures = featureValueDAO.resolveAllByFeatureGroupId(plan.product!!.featureGroupId!!)
         toDTO(productFeatures)
       } ?: emptyList()
     }
@@ -179,6 +179,8 @@ val mapFeatureName2Dto = mapOf(
   FeatureName.requestPerMinuteUpperLimitInt to FeatureNameDto.requestPerMinuteUpperLimitInt,
   FeatureName.refreshRateInMinutesLowerLimitInt to FeatureNameDto.refreshRateInMinutesLowerLimit,
   FeatureName.publicRepositoryBool to FeatureNameDto.publicRepository,
+  FeatureName.supportBool to FeatureNameDto.supportBool,
+  FeatureName.fullLicenseBool to FeatureNameDto.fullLicenseBool,
 
   FeatureName.scrapeRequestTimeoutMsecInt to FeatureNameDto.scrapeRequestTimeoutMsec,
   FeatureName.repositoryRetentionMaxDaysLowerLimitInt to FeatureNameDto.repositoryRetentionMaxDaysLowerLimitInt,

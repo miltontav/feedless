@@ -51,6 +51,6 @@ class PermissionService(
   }
 
   fun canReadDocument(documentId: UUID) {
-
+    // todo
   }
 }

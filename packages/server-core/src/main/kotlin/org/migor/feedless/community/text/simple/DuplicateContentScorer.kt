@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 @Profile("${AppProfiles.community} & ${AppLayer.service}")
 class DuplicateContentScorer {
 
-  private val log = LoggerFactory.getLogger(KeywordIntersectionScorer::class.simpleName)
+  private val log = LoggerFactory.getLogger(DuplicateContentScorer::class.simpleName)
 
   fun score(comment: CommentEntity): Double {
     return if (getHyperLinks(comment.text).size > 2) {

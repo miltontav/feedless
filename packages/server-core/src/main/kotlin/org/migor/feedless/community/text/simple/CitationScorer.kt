@@ -17,7 +17,7 @@ class CitationScorer(
   private val commentGraphService: CommentGraphService
 ) {
 
-  private val log = LoggerFactory.getLogger(KeywordIntersectionScorer::class.simpleName)
+  private val log = LoggerFactory.getLogger(CitationScorer::class.simpleName)
 
   private val quotePattern = Regex("\"([^\"]+)\"")
 

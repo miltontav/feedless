@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 @Profile("${AppProfiles.community} & ${AppLayer.service}")
 class EngagementScorer(private val commentGraphService: CommentGraphService) {
 
-  private val log = LoggerFactory.getLogger(KeywordIntersectionScorer::class.simpleName)
+  private val log = LoggerFactory.getLogger(EngagementScorer::class.simpleName)
 
   private var spline: PolynomialSplineFunction = createSplineInterpolator()
 

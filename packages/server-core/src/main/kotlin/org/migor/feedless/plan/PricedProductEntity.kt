@@ -44,6 +44,9 @@ open class PricedProductEntity : EntityWithUUID() {
   @Enumerated(EnumType.STRING)
   open var recurringInterval: ChronoUnit = ChronoUnit.YEARS
 
+  @Column(name = "iteration")
+  open var iteration: Int? = null
+
   @Column(name = StandardJpaFields.product_id, nullable = false)
   open var productId: UUID? = null
 

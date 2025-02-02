@@ -15,6 +15,7 @@ import org.migor.feedless.generated.types.BoolUpdateOperationsInput
 import org.migor.feedless.generated.types.NullableUpdateOperationsInput
 import org.migor.feedless.generated.types.StringUpdateOperationsInput
 import org.migor.feedless.generated.types.UpdateCurrentUserInput
+import org.migor.feedless.mail.MailService
 import org.migor.feedless.plan.ProductDAO
 import org.migor.feedless.plan.ProductService
 import org.migor.feedless.repository.RepositoryDAO
@@ -75,6 +76,7 @@ class UserServiceTest {
       productService,
       githubConnectionDAO,
       connectedAppDAO,
+      mock(MailService::class.java),
       Optional.of(telegramBotService)
     )
 
@@ -234,18 +236,15 @@ class UserServiceTest {
 
   @Test
   fun `given updateUser is requested, fields will be altered`() = runTest {
-    val firstName = "firstName"
-    val lastName = "lastname"
+    val name = "name"
     val country = "country"
     val data = UpdateCurrentUserInput(
-      firstName = StringUpdateOperationsInput(firstName),
-      lastName = StringUpdateOperationsInput(lastName),
+      name = StringUpdateOperationsInput(name),
       country = StringUpdateOperationsInput(country),
     )
     userService.updateUser(UUID.randomUUID(), data)
 
-    verify(user).firstName = firstName
-    verify(user).lastName = lastName
+    verify(user).name = name
     verify(user).country = country
     verifyNoMoreInteractions(user)
     verify(userDAO).save(eq(user))

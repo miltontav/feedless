@@ -17,7 +17,7 @@ import java.util.regex.Pattern
 @Profile("${AppProfiles.community} & ${AppLayer.service}")
 class NoveltyScorer {
 
-  private val log = LoggerFactory.getLogger(KeywordIntersectionScorer::class.simpleName)
+  private val log = LoggerFactory.getLogger(NoveltyScorer::class.simpleName)
   private var spline: PolynomialSplineFunction = createSplineInterpolator()
 
   fun score(comment: CommentEntity): Double {

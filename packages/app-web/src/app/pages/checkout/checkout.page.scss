@@ -72,9 +72,10 @@ ion-checkbox {
     cursor: pointer;
 
     &.active {
-      --border-color: rgba(var(--ion-color-primary-rgb), 0.8);
-      --hl-border-color: var(--ion-color-primary);
-      background: rgba(var(--ion-color-primary-rgb), 0.2);
+      --border-color: rgba(var(--ion-color-success-rgb), 0.8);
+      --hl-border-color: var(--ion-color-success);
+      color: var(--ion-color-success);
+      background: rgba(var(--ion-color-success-rgb), 0.2);
     }
 
     &:hover {

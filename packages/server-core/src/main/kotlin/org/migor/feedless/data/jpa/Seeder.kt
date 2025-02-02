@@ -68,6 +68,8 @@ class Seeder(
 
   private val log = LoggerFactory.getLogger(Seeder::class.simpleName)
 
+  val BASE_FEATURE_GROUP_ID: String = "feedless"
+
   @PostConstruct
   @Transactional(propagation = Propagation.REQUIRED)
   fun onInit() {
@@ -225,9 +227,9 @@ class Seeder(
   }
 
   private fun seedProducts(root: UserEntity) {
-    val baseFeatureGroup = featureGroupDAO.findByParentFeatureGroupIdIsNull() ?: run {
+    val baseFeatureGroup = featureGroupDAO.findByNameEqualsIgnoreCase(BASE_FEATURE_GROUP_ID) ?: run {
         val group = FeatureGroupEntity()
-        group.name = "feedless"
+        group.name = BASE_FEATURE_GROUP_ID
         featureGroupDAO.save(group)
       }
 
@@ -293,22 +295,23 @@ class Seeder(
         )
       }
     } else {
-      val feedlessFree = createProduct(
+      val feedlessFree = createService(
         "feedless Free",
         "Getting started",
         group = Vertical.feedless,
         isBaseProduct = true,
-        saas = true,
         prices = listOf(
           createPricedProduct(
             unit = "Per Month",
             recurringInterval = ChronoUnit.MONTHS,
-            price = 0.0
+            price = 0.0,
+            iteration = null
           ),
           createPricedProduct(
             unit = "Per Year",
             recurringInterval = ChronoUnit.YEARS,
-            price = 0.0
+            price = 0.0,
+            iteration = null
           )
         ),
         parentFeatureGroupId = baseFeatureGroup!!.id,
@@ -338,58 +341,87 @@ class Seeder(
         )
       )
 
-//      val feedlessSupporter = createProduct(
-//        "feedless Supporter",
-//        "Getting Started",
-//        group = Vertical.feedless,
-//        isBaseProduct = false,
-//        saas = true,
-//        prices = listOf(
-//          createPricedProduct(
-//            unit = "Per Month",
-//            recurringInterval = ChronoUnit.MONTHS,
-//            price = 4.9
-//          ),
-//          createPricedProduct(
-//            unit = "Per Year",
-//            recurringInterval = ChronoUnit.YEARS,
-//            price = 49.0
-//          )
-//        ),
-//        parentFeatureGroupId = feedlessFree.featureGroupId,
-//        features = emptyMap()
-//      )
-
+      createProduct(
+        "RSS-proxy",
+        "Self hosted feed generator",
+        group = Vertical.feedless,
+        selfHostingIndividual = true,
+        selfHostingOther = true,
+        features = mapOf(
+          FeatureName.supportBool to asBoolFeature(false),
+          FeatureName.fullLicenseBool to asBoolFeature(true),
+        ),
+        prices = listOf(
+          createPricedProduct(
+            unit = "1st major version",
+            recurringInterval = ChronoUnit.YEARS,
+            iteration = 1,
+            price = 59.0
+          ),
+          createPricedProduct(
+            unit = "Consecutive major versions",
+            recurringInterval = ChronoUnit.YEARS,
+            iteration = 2,
+            price = 29.0
+          ),
+        ),
+      )
 
       createProduct(
+        "RSS-proxy Premium",
+        "Self hosted feed generator",
+        group = Vertical.feedless,
+        selfHostingIndividual = true,
+        selfHostingOther = true,
+        features = mapOf(
+          FeatureName.supportBool to asBoolFeature(true),
+          FeatureName.fullLicenseBool to asBoolFeature(true),
+        ),
+        prices = listOf(
+          createPricedProduct(
+            unit = "1st major version",
+            recurringInterval = ChronoUnit.YEARS,
+            iteration = 1,
+            price = 199.0
+          ),
+          createPricedProduct(
+            unit = "Consecutive major versions",
+            recurringInterval = ChronoUnit.YEARS,
+            iteration = 2,
+            price = 79.0
+          ),
+        ),
+      )
+
+      createService(
         "feedless Pro",
         "Getting serious",
         group = Vertical.feedless,
-        saas = true,
         available = false,
-        selfHostingIndividual = true,
-        selfHostingEnterprise = true,
-        selfHostingOther = true,
         parentFeatureGroupId = feedlessFree.featureGroupId,
         prices = listOf(
           createPricedProduct(
             unit = "Per Month",
             recurringInterval = ChronoUnit.MONTHS,
+            iteration = null,
             price = 9.9
           ),
           createPricedProduct(
             unit = "1st Year",
             recurringInterval = ChronoUnit.YEARS,
+            iteration = 1,
             price = 99.0
           ),
           createPricedProduct(
             unit = "2nd Year",
             recurringInterval = ChronoUnit.YEARS,
+            iteration = 2,
             price = 69.0
           ),
           createPricedProduct(
             unit = "3rd Year onward",
             recurringInterval = ChronoUnit.YEARS,
+            iteration = null,
             price = 49.0
           )
         ),
@@ -421,7 +453,7 @@ class Seeder(
 
   private fun resolveFeatureGroup(
     name: String,
-    parentFeatureGroupId: UUID,
+    parentFeatureGroupId: UUID?,
     features: Map<FeatureName, FeatureValueEntity>
   ): FeatureGroupEntity {
     log.info("resolveFeatureGroup $name")
@@ -439,6 +471,7 @@ class Seeder(
   private fun createPricedProduct(
     inStock: Int? = null,
     unit: String,
+    iteration: Int?,
     price: Double,
     recurringInterval: ChronoUnit
   ): PricedProductEntity {
@@ -447,6 +480,7 @@ class Seeder(
     priced.price = price
     priced.unit = unit
     priced.recurringInterval = recurringInterval
+    priced.iteration = iteration
 
     return priced
   }
@@ -456,7 +490,54 @@ class Seeder(
     description: String,
     group: Vertical? = null,
     prices: List<PricedProductEntity>,
-    parentFeatureGroupId: UUID,
+    features: Map<FeatureName, FeatureValueEntity> = emptyMap(),
+    available: Boolean = true,
+    selfHostingIndividual: Boolean = false,
+    selfHostingEnterprise: Boolean = false,
+    selfHostingOther: Boolean = false,
+  ): ProductEntity {
+    return createProductOrService(name,
+      description,
+      group,
+    prices,
+    null,
+    features,
+    available,
+    saas = false,
+    isBaseProduct = false,
+    selfHostingIndividual,
+    selfHostingEnterprise,
+    selfHostingOther)
+  }
+
+  private fun createService(
+    name: String,
+    description: String,
+    group: Vertical? = null,
+    prices: List<PricedProductEntity>,
+    parentFeatureGroupId: UUID?,
+    features: Map<FeatureName, FeatureValueEntity>,
+    available: Boolean = true,
+    isBaseProduct: Boolean = false,
+  ): ProductEntity {
+    return createProductOrService(name,
+      description,
+      group,
+      prices,
+      parentFeatureGroupId,
+      features,
+      available,
+      saas = true,
+      isBaseProduct = isBaseProduct
+    )
+  }
+
+  private fun createProductOrService(
+    name: String,
+    description: String,
+    group: Vertical? = null,
+    prices: List<PricedProductEntity>,
+    parentFeatureGroupId: UUID?,
     features: Map<FeatureName, FeatureValueEntity>,
     available: Boolean = true,
     saas: Boolean = false,
@@ -480,16 +561,13 @@ class Seeder(
 
     productDAO.save(product)
 
-    if (saas) {
-      product.featureGroupId = parentFeatureGroupId
+    product.featureGroupId = parentFeatureGroupId
 
-      if (features.isNotEmpty()) {
-        val featureGroup = resolveFeatureGroup(name, parentFeatureGroupId, features)
-        product.featureGroupId = featureGroup.id
-      }
-      productDAO.save(product)
+    if (features.isNotEmpty()) {
+      val featureGroup = resolveFeatureGroup(name, parentFeatureGroupId, features)
+      product.featureGroupId = featureGroup.id
     }
-
+    productDAO.save(product)
 
     pricedProductDAO.deleteAllByProductId(product.id)
     pricedProductDAO.saveAll(prices.map {

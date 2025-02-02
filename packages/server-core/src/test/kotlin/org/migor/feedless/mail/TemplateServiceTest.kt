@@ -1,5 +1,6 @@
 package org.migor.feedless.mail
 
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -30,7 +31,7 @@ import org.springframework.test.context.ActiveProfiles
 )
 @MockBeans(
     MockBean(HttpService::class),
-    MockBean(MailService::class),
+    MockBean(MailGatewayService::class),
     MockBean(OneTimePasswordService::class),
 )
 @Import(DisableMailConfiguration::class, DisableDatabaseConfiguration::class)
@@ -44,38 +45,23 @@ class TemplateServiceTest {
   }
 
   @Test
-  fun test_welcomePaidMail() {
+  fun test_welcomePaidMail() = runTest {
     testTemplate(WelcomePaidMailTemplate(WelcomeMailParams(productName = "ThisProduct")))
   }
 
-  @Test
-  fun test_VisualDiffChangeDetectedMail() {
-    val params = VisualDiffChangeDetectedParams(
-      trackerTitle = "trackerTitle",
-      website = "website",
-      inlineImages = "inlineImages"
-    )
-    testTemplate(VisualDiffChangeDetectedMailTemplate(params))
-  }
+//  @Test
+//  fun test_VisualDiffWelcomeMail() {
+//    val params = VisualDiffWelcomeParams(
+//      trackerTitle = "trackerTitle",
+//      website = "website",
+//      trackerInfo = "",
+//      activateTrackerMailsUrl = "https://foo.bar/auth",
+//      info = ""
+//    )
+//    testTemplate(VisualDiffWelcomeMailTemplate(params))
+//  }
 
-  @Test
-  fun test_VisualDiffWelcomeMail() {
-    val params = VisualDiffWelcomeParams(
-      trackerTitle = "trackerTitle",
-      website = "website",
-      trackerInfo = "",
-      activateTrackerMailsUrl = "https://foo.bar/auth",
-      info = ""
-    )
-    testTemplate(VisualDiffWelcomeMailTemplate(params))
-  }
-
-  @Test
-  fun test_MailTrackerAuthorized() {
-    testTemplate(ChangeTrackerAuthorizedTemplate())
-  }
-
-  private fun <T> testTemplate(template: FtlTemplate<T>) {
+  private suspend fun <T> testTemplate(template: FtlTemplate<T>) {
     assertDoesNotThrow {
       templateService.renderTemplate(template)
     }

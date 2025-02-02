@@ -3,6 +3,7 @@ import { AuthGuardService } from '../guards/auth-guard.service';
 import { ProfileGuardService } from '../guards/profile-guard.service';
 import { SaasGuardService } from '../guards/saas-guard.service';
 import { Parser } from 'typesafe-routes/build/parser';
+import { ORDER_ROUTES } from '../pages/orders/orders.routes';
 
 export const upperCaseStringParser: Parser<string> = {
   parse: (s) => s.toUpperCase(),
@@ -40,7 +41,7 @@ export const DefaultRoutes: Routes = [
   },
   {
     path: '',
-    canActivate: [SaasGuardService],
+    // canActivate: [SaasGuardService],
     children: [
       {
         path: 'directory',
@@ -70,6 +71,13 @@ export const DefaultRoutes: Routes = [
         loadChildren: () =>
           import('../pages/billings/billings.routes').then(
             (m) => m.BILLING_ROUTES,
+          ),
+      },
+      {
+        path: 'orders',
+        loadChildren: () =>
+          import('../pages/orders/orders.routes').then(
+            (m) => m.ORDER_ROUTES,
           ),
       },
       {
@@ -110,6 +118,11 @@ export const DefaultRoutes: Routes = [
           import('../pages/services/services.routes').then(
             (m) => m.SERVICES_ROUTES,
           ),
+      },
+      {
+        path: 'sinks',
+        loadChildren: () =>
+          import('../pages/sinks/sinks.routes').then((m) => m.SINKS_ROUTES),
       },
       {
         path: 'plugins',

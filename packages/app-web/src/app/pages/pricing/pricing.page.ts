@@ -37,16 +37,10 @@ export class PricingPage implements OnInit, OnDestroy {
   async ngOnInit() {
     this.appConfigService.setPageTitle('Pricing');
     const productConfigs = await this.appConfigService.getAllAppConfigs();
-    this.subscriptions.push(
-      this.activatedRoute.params.subscribe(async (params) => {
-        if (params.productId) {
-          this.productConfig = productConfigs.find(
-            (p) => p.id === params.productId,
-          );
-          this.changeRef.detectChanges();
-        }
-      }),
+    this.productConfig = productConfigs.find(
+      (p) => p.id === 'feedless',
     );
+    this.changeRef.detectChanges();
   }
 
   ngOnDestroy(): void {

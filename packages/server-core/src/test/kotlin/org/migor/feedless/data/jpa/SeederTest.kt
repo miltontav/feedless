@@ -1,5 +1,6 @@
 package org.migor.feedless.data.jpa
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.migor.feedless.common.PropertyService
@@ -22,6 +23,8 @@ import org.mockito.Mockito
 import org.mockito.Mockito.argThat
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.springframework.core.env.Environment
 import java.util.*
 
@@ -44,19 +47,19 @@ class SeederTest {
 
   @BeforeEach
   fun setUp() {
-    featureGroupDAO = Mockito.mock(FeatureGroupDAO::class.java)
-    featureService = Mockito.mock(FeatureService::class.java)
-    documentDAO = Mockito.mock(DocumentDAO::class.java)
-    environment = Mockito.mock(Environment::class.java)
-    propertyService = Mockito.mock(PropertyService::class.java)
-    productDAO = Mockito.mock(ProductDAO::class.java)
-    pricedProductDAO = Mockito.mock(PricedProductDAO::class.java)
-    userSecretDAO = Mockito.mock(UserSecretDAO::class.java)
-    repositoryDAO = Mockito.mock(RepositoryDAO::class.java)
-    standaloneFeedService = Mockito.mock(StandaloneFeedService::class.java)
-    groupDAO = Mockito.mock(GroupDAO::class.java)
-    userGroupAssignmentDAO = Mockito.mock(UserGroupAssignmentDAO::class.java)
-    userDAO = Mockito.mock(UserDAO::class.java)
+    featureGroupDAO = mock(FeatureGroupDAO::class.java)
+    featureService = mock(FeatureService::class.java)
+    documentDAO = mock(DocumentDAO::class.java)
+    environment = mock(Environment::class.java)
+    propertyService = mock(PropertyService::class.java)
+    productDAO = mock(ProductDAO::class.java)
+    pricedProductDAO = mock(PricedProductDAO::class.java)
+    userSecretDAO = mock(UserSecretDAO::class.java)
+    repositoryDAO = mock(RepositoryDAO::class.java)
+    standaloneFeedService = mock(StandaloneFeedService::class.java)
+    groupDAO = mock(GroupDAO::class.java)
+    userGroupAssignmentDAO = mock(UserGroupAssignmentDAO::class.java)
+    userDAO = mock(UserDAO::class.java)
 
     seeder = Seeder(
       featureGroupDAO,
@@ -74,41 +77,46 @@ class SeederTest {
       userGroupAssignmentDAO
     )
 
-    Mockito.`when`(propertyService.rootEmail).thenReturn("admin@foo")
-    Mockito.`when`(propertyService.anonymousEmail).thenReturn("anon@foo")
-    Mockito.`when`(propertyService.rootSecretKey).thenReturn("aSecretSecret")
-    Mockito.`when`(userDAO.saveAndFlush(any2())).thenAnswer{ it.arguments[0] }
-    Mockito.`when`(repositoryDAO.save(any2())).thenAnswer{ it.arguments[0] }
-    Mockito.`when`(featureGroupDAO.save(any2())).thenAnswer{ it.arguments[0] }
-    Mockito.`when`(standaloneFeedService.getRepoTitleForStandaloneFeedNotifications()).thenReturn("opsops")
+    `when`(propertyService.rootEmail).thenReturn("admin@foo")
+    `when`(propertyService.anonymousEmail).thenReturn("anon@foo")
+    `when`(propertyService.rootSecretKey).thenReturn("aSecretSecret")
+    `when`(userDAO.saveAndFlush(any2())).thenAnswer{ it.arguments[0] }
+    `when`(repositoryDAO.save(any2())).thenAnswer{ it.arguments[0] }
+    `when`(featureGroupDAO.save(any2())).thenAnswer{ it.arguments[0] }
+    `when`(standaloneFeedService.getRepoTitleForStandaloneFeedNotifications()).thenReturn("opsops")
 
 
-    Mockito.`when`(userDAO.save(any2())).thenAnswer { it.arguments[0] }
-    Mockito.`when`(groupDAO.save(any2())).thenAnswer { it.arguments[0] }
-    Mockito.`when`(userSecretDAO.save(any2())).thenAnswer { it.arguments[0] }
+    `when`(userDAO.save(any2())).thenAnswer { it.arguments[0] }
+    `when`(groupDAO.save(any2())).thenAnswer { it.arguments[0] }
+    `when`(userSecretDAO.save(any2())).thenAnswer { it.arguments[0] }
   }
 
   @Test
   fun `given root user does not exist, will seed one with key`() {
-    Mockito.`when`(userSecretDAO.existsByValueAndOwnerId(any2(), any2())).thenReturn(false)
+    `when`(userSecretDAO.existsByValueAndOwnerId(any2(), any2())).thenReturn(false)
 
     seeder.onInit()
 
-    Mockito.verify(userDAO, times(1)).save(argThat { it.admin })
+    verify(userDAO, times(1)).save(argThat { it.admin })
+  }
+
+  @Test
+  fun `base feature group is named feedless`() {
+    assertThat(seeder.BASE_FEATURE_GROUP_ID).isEqualTo("feedless")
   }
 
   @Test
   fun `given root user exists, won't do anything`() {
     val root = mock(UserEntity::class.java)
-    Mockito.`when`(root.id).thenReturn(UUID.randomUUID())
-    Mockito.`when`(root.email).thenReturn("admin@foo")
-    Mockito.`when`(userDAO.findFirstByAdminIsTrue()).thenReturn(root)
-    Mockito.`when`(userDAO.findByEmail(eq("anon@foo"))).thenReturn(mock(UserEntity::class.java))
-    Mockito.`when`(userSecretDAO.existsByValueAndOwnerId(any2(), any2())).thenReturn(true)
+    `when`(root.id).thenReturn(UUID.randomUUID())
+    `when`(root.email).thenReturn("admin@foo")
+    `when`(userDAO.findFirstByAdminIsTrue()).thenReturn(root)
+    `when`(userDAO.findByEmail(eq("anon@foo"))).thenReturn(mock(UserEntity::class.java))
+    `when`(userSecretDAO.existsByValueAndOwnerId(any2(), any2())).thenReturn(true)
 
     seeder.onInit()
 
-    Mockito.verify(userDAO, times(0)).save(argThat { !it.admin })
+    verify(userDAO, times(0)).save(argThat { !it.admin })
   }
 
   @Test
@@ -116,19 +124,19 @@ class SeederTest {
 
     seeder.onInit()
 
-    Mockito.verify(groupDAO, times(1)).save(any2())
+    verify(groupDAO, times(1)).save(any2())
 //    Mockito.verify(userGroupAssignmentDAO, times(1)).save(any2())
   }
 
   @Test
   fun `given admin group exists, won't do anything`() {
     val adminGroup = mock(GroupEntity::class.java)
-    Mockito.`when`(adminGroup.id).thenReturn(UUID.randomUUID())
-    Mockito.`when`(groupDAO.findByName(any2())).thenReturn(adminGroup)
+    `when`(adminGroup.id).thenReturn(UUID.randomUUID())
+    `when`(groupDAO.findByName(any2())).thenReturn(adminGroup)
 
     seeder.onInit()
 
-    Mockito.verify(groupDAO, times(0)).save(any2())
+    verify(groupDAO, times(0)).save(any2())
 //    Mockito.verify(userGroupAssignmentDAO, times(0)).save(any2())
   }
 }

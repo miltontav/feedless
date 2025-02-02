@@ -38,6 +38,8 @@ enum class FeatureName {
   canCreateUser,
   canJoinPlanWaitList,
   canSignUp,
+  supportBool,
+  fullLicenseBool,
 
   scrapeRequestTimeoutMsecInt,
   repositoriesMaxCountActiveInt,

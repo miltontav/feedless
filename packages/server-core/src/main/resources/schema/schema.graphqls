@@ -185,6 +185,7 @@ type Mutation {
   updateFeatureValue(data: UpdateFeatureValueInput!): Boolean!
 
   upsertOrder(data: UpsertOrderInput!): Order!
+  cancelPlan(plan: ID!): Boolean!
 }
 
 type Report {
@@ -200,13 +201,13 @@ input UpsertOrderInput {
 
 input OrderUpdateInput {
   price: FloatUpdateOperationsInput
-  isOffer: BoolUpdateOperationsInput
+#  isOffer: BoolUpdateOperationsInput
   isRejected: BoolUpdateOperationsInput
 }
 
 input OrderCreateInput {
   overwritePrice: Float!
-  isOffer: Boolean!
+#  isOffer: Boolean!
   productId: ID!
   paymentMethod: PaymentMethod!
   targetGroup: ProductTargetGroup!
@@ -226,20 +227,20 @@ type Order {
   userId: ID!
   user: User
   productId: ID!
-  product: Product!
+  product: Product
 
   # offer
-  isOffer: Boolean!
+#  isOffer: Boolean!
   offerValidTo: Long
-  isOfferRejected: Boolean!
+#  isOfferRejected: Boolean!
 
   # payment
   price: Float!
   paymentDueTo: Long
   paymentMethod: PaymentMethod
 #  isPaymentFailed: Boolean!
-  isPaid: Boolean!
-  paidAt: Long
+#  isPaid: Boolean!
+#  paidAt: Long
   invoiceRecipientName: String!
   invoiceRecipientEmail: String!
 
@@ -269,9 +270,8 @@ input UserCreateOrConnectInput {
 
 input UserCreateInput {
   email: String! @email
-  firstName: String!
-  lastName: String!
-  country: String!
+  name: String!
+  country: String
   hasAcceptedTerms: Boolean!
 }
 
@@ -905,6 +905,14 @@ type Selectors {
   extendContext: ExtendContentOptions!
   paginationXPath: String!
   linkXPath: String!
+#  custom: [NamedXPath!]
+}
+
+type NamedXPath {
+  name: String!
+  min: Int
+  max: Int
+  xpath: String!
 }
 
 type ServerSettings {
@@ -987,8 +995,7 @@ type User {
   createdAt: Long!
   email: String!
   emailValidated: Boolean!
-  firstName: String
-  lastName: String
+  name: String
   country: String
   purgeScheduledFor: Long
   notificationRepositoryId: ID
@@ -1094,6 +1101,9 @@ enum FeatureName {
   scrapeRequestMaxCountPerSource
   scrapeRequestActionMaxCount
   scrapeSourceMaxCountTotal
+
+  supportBool
+  fullLicenseBool
 }
 
 enum NativeFeedStatus {
@@ -1399,6 +1409,14 @@ input SelectorsInput {
   paginationXPath: String!
   extendContext: ExtendContentOptions!
   linkXPath: String!
+#  custom: [NamedXPathInput!]
+}
+
+input NamedXPathInput {
+  name: String!
+  min: Int
+  max: Int
+  xpath: String! @xpath
 }
 
 input StringArrayFilter {
@@ -1440,8 +1458,7 @@ input SubmitAgentDataInput {
 
 input UpdateCurrentUserInput {
   email: StringUpdateOperationsInput
-  firstName: StringUpdateOperationsInput
-  lastName: StringUpdateOperationsInput
+  name: StringUpdateOperationsInput
   country: StringUpdateOperationsInput
   acceptedTermsAndServices: BoolUpdateOperationsInput
   purgeScheduledFor: NullableUpdateOperationsInput

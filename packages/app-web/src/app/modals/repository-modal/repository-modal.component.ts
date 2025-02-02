@@ -205,6 +205,7 @@ export class RepositoryModalComponent
 
   async createOrUpdateFeed() {
     if (this.formFg.invalid) {
+      console.warn('invalid form');
       return;
     }
 
@@ -214,7 +215,7 @@ export class RepositoryModalComponent
     try {
       const plugins: GqlPluginExecutionInput[] = [];
 
-      const hasFilters = this.filterParams.length > 0;
+      const hasFilters = this.filterParams?.length > 0;
       const applyFiltersLast = false;
 
       const appendFilterPlugin = () => {
@@ -323,6 +324,7 @@ export class RepositoryModalComponent
         await this.router.navigateByUrl(`/feeds/${firstRepository.id}`);
       }
     } catch (e: any) {
+      console.error(e);
       this.errorMessage = e?.message;
     } finally {
       this.loading = false;
@@ -438,6 +440,8 @@ export class RepositoryModalComponent
   }
 
   openFlowModal() {
-    return this.modalService.openFlowModal({});
+    return this.modalService.openFlowModal({
+      plugins: this.repository.plugins,
+    });
   }
 }

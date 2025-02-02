@@ -81,15 +81,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   protected formFg = new FormGroup({
     email: createEmailFormControl<string>(''),
     emailVerified: new FormControl<boolean>(false),
-    country: new FormControl<string>('', [
-      Validators.minLength(2),
-      Validators.maxLength(50),
-    ]),
-    firstName: new FormControl<string>('', [
-      Validators.minLength(2),
-      Validators.maxLength(50),
-    ]),
-    lastName: new FormControl<string>('', [
+    name: new FormControl<string>('', [
       Validators.minLength(2),
       Validators.maxLength(50),
     ]),
@@ -130,8 +122,7 @@ export class ProfilePage implements OnInit, OnDestroy {
           this.userId = session.user.id;
           this.formFg.patchValue({
             email: session.user.email,
-            firstName: session.user.firstName,
-            lastName: session.user.lastName,
+            name: session.user.name,
             emailVerified: session.user.emailValidated,
           });
           this.changeRef.detectChanges();
@@ -198,14 +189,8 @@ export class ProfilePage implements OnInit, OnDestroy {
   async saveProfile() {
     if (this.formFg.valid && this.formFg.dirty) {
       await this.sessionService.updateCurrentUser({
-        firstName: {
-          set: this.formFg.value.firstName,
-        },
-        lastName: {
-          set: this.formFg.value.lastName,
-        },
-        country: {
-          set: this.formFg.value.country,
+        name: {
+          set: this.formFg.value.name,
         },
         email: {
           set: this.formFg.value.email,

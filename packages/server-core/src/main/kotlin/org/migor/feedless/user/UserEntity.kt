@@ -43,23 +43,22 @@ open class UserEntity : EntityWithUUID() {
   @Column(nullable = false, name = StandardJpaFields.email)
   open lateinit var email: String
 
-  @Column(name = "first_name")
-  @Size(message = "fistName", max = 150)
-  open var firstName: String? = null
-
-  @Column(name = "last_name")
-  @Size(message = "lastname", max = 150)
-  open var lastName: String? = null
-
-  @Column(name = "country")
-  @Size(message = "country", max = 150)
-  open var country: String? = null
-
   @Column(nullable = false, name = "has_validated_email")
   open var hasValidatedEmail: Boolean = false
 
   @Column(name = "validated_email_at")
   open var validatedEmailAt: LocalDateTime? = null
+
+  @Column(name = "name")
+  @Size(message = "name", max = 150)
+  open var name: String? = null
+
+  @Column(name = "stripe_customer_id")
+  open var stripeCustomerId: String? = null
+
+  @Column(name = "country")
+  @Size(message = "country", max = 150)
+  open var country: String? = null
 
   @Column(nullable = false, name = "total_usage_mb")
   open var usageTotalMb: Double = 0.0
@@ -156,8 +155,7 @@ fun UserEntity.toDTO(): User =
     hasCompletedSignup = hasFinalizedProfile(),
     email = StringUtils.trimToEmpty(email),
     emailValidated = hasValidatedEmail,
-    firstName = StringUtils.trimToEmpty(firstName),
-    lastName = StringUtils.trimToEmpty(lastName),
+    name = StringUtils.trimToEmpty(name),
     country = StringUtils.trimToEmpty(country),
     notificationRepositoryId = inboxRepositoryId?.toString(),
     secrets = emptyList(),

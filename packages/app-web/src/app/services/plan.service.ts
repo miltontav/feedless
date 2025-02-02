@@ -1,9 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import {
+  CancelPlan,
+  FieldWrapper,
+  GqlCancelPlanMutation,
+  GqlCancelPlanMutationVariables,
   GqlCursor,
   GqlPlansQuery,
   GqlPlansQueryVariables,
   Plans,
+  Scalars,
 } from '../../generated/graphql';
 import { ApolloClient, FetchPolicy } from '@apollo/client/core';
 import { ArrayElement } from '../types';
@@ -31,5 +36,17 @@ export class PlanService {
         fetchPolicy,
       })
       .then((response) => response.data.plans);
+  }
+
+  async cancelPlanSubscription(id: string) {
+    await this.apollo.mutate<
+      GqlCancelPlanMutation,
+      GqlCancelPlanMutationVariables
+    >({
+      mutation: CancelPlan,
+      variables: {
+        planId: id,
+      },
+    });
   }
 }

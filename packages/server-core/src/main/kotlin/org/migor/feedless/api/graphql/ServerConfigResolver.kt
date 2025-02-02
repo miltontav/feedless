@@ -56,7 +56,7 @@ class ServerConfigResolver {
     value = [CacheNames.SERVER_SETTINGS],
     keyGenerator = "cacheKeyGenerator"
   ) // https://stackoverflow.com/questions/14072380/cacheable-key-on-multiple-method-arguments
-  suspend fun serverSettings(
+  suspend fun getServerSettings(
     dfe: DataFetchingEnvironment,
     @InputArgument(DgsConstants.QUERY.SERVERSETTINGS_INPUT_ARGUMENT.Data) data: ServerSettingsContextInput,
   ): ServerSettings = withContext(injectCurrentUser(currentCoroutineContext(), dfe)) {

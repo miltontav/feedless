@@ -11,10 +11,22 @@
       <ion-item>
         <p>You have no billings yet</p>
       </ion-item>
-      } @for (feed of orders; track feed) {
-      <ion-item lines="inset">
-        <ion-label> Billing</ion-label>
-      </ion-item>
+      }
+      @for (order of orders; track order.id) {
+      <ion-row>
+        <ion-col size="4"> {{ order.product.name }} </ion-col>
+        <ion-col size="4">{{ order.createdAt | date: dateTimeFormat }}</ion-col>
+        <ion-col size="4" class="ion-float-end">
+          @if (order.isPaid) {
+            <ion-button fill="outline">Bill</ion-button>
+            <ion-button fill="outline">Attachment</ion-button>
+          } @else {
+            <ion-button fill="outline" [href]="getPayLink(order)">Pay</ion-button>
+          }
+        </ion-col>
+      </ion-row>
+
+
       }
     </ion-list>
   </div>
